@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" integrity="sha512-YWzhKL2whUzgiheMoBFwW8CKV4qpHQAEuvilg9FAn5VJUDwKZZxkJNuGM4XkWuk94WCrrwslk8yWNGmY1EduTA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+            box-sizing: content-box;
+            font-family: Arial, Helvetica, sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: grid;
+            place-items: center;
+            background-color: #023047;
+        }
+        .container {
+            height: 300px;
+            width: 300px;
+            padding: 30px;
+            border-radius: 10px;
+            background-color: #ffb703;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .title {
+            color: #023047;
+            text-align: center;
+        }
+        .status {
+            padding: 0;
+            width: 60px;
+            height: 60px;
+            font-size: 40px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            border: none;
+            border-radius: 20px;
+            outline: none;
+            color: #fb8500;
+            background-color: #023047;
+        }
+        .status i {
+            position: absolute;
+            left: -6%;
+            width: 100%;
+        }
+        .response {
+            color: #023047;
+            transition: .5s;
+        }
+        .warning {
+            font-size: 14px;
+            color: #023047;
+        }
+    </style>
+    <title>Proyecto 142</title>
+</head>
+<body>
+    <section class="container">
+        <h1 class="title">Proyecto bastón para invidentes</h1>
+        <button onclick="connect()" class="status"><i class="fas fa-play"></i></button>
+        <p id="response" class="response">Obstáculo a menos de 50 centímetros detectado</p>
+        <p class="warning">Por favor suba el volumen</p>
+    </section>
+    <script>
+        let synth = window.speechSynthesis;
+        let allVoices = 1
+        let voice = 0
+
+        const readText = (voices, text) => {
+            allVoices = voices.length
+            voice = 0
+            let utterThis = new SpeechSynthesisUtterance(text);
+            utterThis.voice = voices[voice];
+            synth.speak(utterThis);
+        }
+        const message = (id) => {
+            let voices = synth.getVoices();
+            let msg = ""
+            if(id == "1"){
+                msg = "Emergencia emergencia emergencia"
+            } else if (id == "2") {
+                msg = "Obstaculo detectado, a menos de cincuenta centimetros"
+            } else if (id == "3") {
+                msg = "Obstaculo detectado, a menos de cien centimetros"
+            } else if (id == "4") {
+                msg = "Advertencia, inclinacion detectada"
+            }
+            readText(voices, msg)
+        }
+        const onDisconnected = (event) =>{
+            const device = event.target;
+            console.log(`Device ${device.name} is disconnected.`);
+        }
+
+        function connect() {
+            console.log(navigator);
+            navigator.bluetooth.requestDevice({
+                acceptAllDevices: true
+            })
+            .then(device => {
+                // Set up event listener for when device gets disconnected.
+                device.addEventListener('gattserverdisconnected', onDisconnected);
+
+                // Attempts to connect to remote GATT Server.
+                return device.gatt.connect();
+            })
+            .then(server => { console.log(server); })
+            .catch(error => { console.error(error); });
+        }
+    </script>
+</body>
+</html>
